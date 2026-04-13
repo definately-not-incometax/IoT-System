@@ -1,0 +1,4 @@
+idf_component_register(SRCS "config_portal.c"
+                       INCLUDE_DIRS "."
+                       REQUIRES esp_http_server esp_wifi nvs_flash lwip StorageManager)
+

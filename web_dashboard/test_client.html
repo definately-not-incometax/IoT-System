@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESP32 IoT Test Client</title>
+<meta name="viewport" content="width=device-width">
+<style>
+body { font-family: Arial; max-width: 600px; margin: 20px auto; padding: 20px; background: #f5f5f5; }
+.card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 10px 0; }
+#data { font-size: 24px; font-weight: bold; color: #007cba; }
+.status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+.connected { background: #d4edda; color: #155724; }
+.disconnected { background: #f8d7da; color: #721c24; }
+#logs { height: 200px; overflow-y: scroll; background: #333; color: lime; padding: 10px; font-family: monospace; font-size: 12px; }
+input { padding: 10px; font-size: 16px; width: 250px; }
+button { padding: 10px 20px; background: #007cba; color: white; border: none; border-radius: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="card">
+<h1>ESP32 IoT Dashboard Test</h1>
+<div class="status disconnected" id="status">Disconnected</div>
+<label>Device IP: <input id="ip" placeholder="192.168.1.100" value="192.168.1.100"></label>
+<button onclick="connect()">Connect</button> <button onclick="disconnect()">Disconnect</button>
+</div>
+<div class="card">
+<div id="data">--</div>
+</div>
+<div class="card">
+<h3>Raw JSON Logs:</h3>
+<div id="logs"></div>
+</div>
+<script>
+let ws = null;
+let reconnectTimer = null;
+
+function log(msg) {
+  document.getElementById('logs').innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+  document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+}
+
+function updateStatus(connected) {
+  const status = document.getElementById('status');
+  status.textContent = connected ? 'Connected' : 'Disconnected';
+  status.className = 'status ' + (connected ? 'connected' : 'disconnected');
+}
+
+function connect() {
+  const ip = document.getElementById('ip').value;
+  if (ws) ws.close();
+  
+  ws = new WebSocket(`ws://${ip}:81/ws`);
+  
+  ws.onopen = () => {
+    log('Connected');
+    updateStatus(true);
+    reconnectTimer = null;
+  };
+  
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      document.getElementById('data').innerHTML = 
+        `Temp: ${data.sensors.environment.temperature.toFixed(1)}°C | Hum: ${data.sensors.environment.humidity.toFixed(1)}% | RSSI: ${data.system.rssi} | Heap: ${data.system.heap.toLocaleString()}`;
+      log(event.data);
+    } catch (e) {
+      log('Parse error: ' + e);
+    }
+  };
+  
+  ws.onclose = () => {
+    log('Disconnected');
+    updateStatus(false);
+    if (!reconnectTimer) {
+      reconnectTimer = setTimeout(() => connect(), 3000);
+    }
+  };
+  
+  ws.onerror = (e) => log('Error: ' + e);
+}
+
+function disconnect() {
+  if (ws) ws.close();
+}
+</script>
+</body>
+</html>
+
