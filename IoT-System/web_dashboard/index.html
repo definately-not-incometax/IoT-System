@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Monitor</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#1c1c1e">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>IoT Monitor</h1>
+      <div id="status" class="status disconnected">Disconnected</div>
+    </header>
+    <div id="config" class="config-panel">
+<input id="device-ip" type="text" placeholder="192.168.1.100" value="" aria-label="Device IP address">
+<button id="connect-btn" aria-label="Connect to IoT device">Connect</button>
+<button id="clear-ip" aria-label="Clear saved IP address">Clear IP</button>
+    </div>
+<aside id="sidebar" class="sidebar" aria-label="Device management sidebar">
+      <select id="device-select">
+        <option>Add Device...</option>
+      </select>
+      <button id="add-device">Add Device</button>
+    </div>
+    <div id="dashboard" class="dashboard" style="display:none;">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h3>Temperature</h3>
+          <div id="temp" class="metric-value">-- °C</div>
+        </div>
+        <div class="metric-card">
+          <h3>Humidity</h3>
+          <div id="humidity" class="metric-value">-- %</div>
+        </div>
+        <div class="metric-card">
+          <h3>Uptime</h3>
+          <div id="uptime" class="metric-value">--</div>
+        </div>
+        <div class="metric-card">
+          <h3>RSSI</h3>
+          <div id="rssi" class="metric-value">-- dBm</div>
+        </div>
+        <div class="metric-card">
+          <h3>Heap</h3>
+          <div id="heap" class="metric-value">-- B</div>
+        </div>
+        <div class="metric-card">
+          <h3>Last Update</h3>
+          <div id="timestamp" class="metric-value">--</div>
+        </div>
+      </div>
+      <div id="alerts-container"></div>
+      <canvas id="chart" width="600" height="200"></canvas>
+      <div class="alert-settings">
+        <h3>Alerts</h3>
+        <label>Temp Max: <input id="temp-max" type="number" step="0.1" /></label>
+        <label>Temp Min: <input id="temp-min" type="number" step="0.1" /></label>
+        <label>Hum Max: <input id="hum-max" type="number" step="0.1" /></label>
+        <label>Hum Min: <input id="hum-min" type="number" step="0.1" /></label>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="devices.js"></script>
+  <script src="charts.js"></script>
+  <script src="alerts.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
