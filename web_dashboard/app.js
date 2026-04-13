@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('device-ip').value = '';
   };
   
+  // Init modules
+  if (typeof deviceMgr !== 'undefined') {
+    deviceMgr.loadDevices(); // Assume method exists or init
+    updateSidebarVisibility();
+  }
+  if (typeof alertMgr !== 'undefined') {
+    alertMgr.loadAlerts();
+  }
+  
   chartCtx = document.getElementById('chart').getContext('2d');
   initChart();
   
@@ -34,12 +43,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function updateSidebarVisibility() {
+  const sidebar = document.getElementById('sidebar');
+  if (typeof deviceMgr !== 'undefined' && (!deviceMgr.devices || deviceMgr.devices.length === 0)) {
+    sidebar.classList.add('hidden');
+  } else {
+    sidebar.classList.remove('hidden');
+  }
+}
+
 function connect() {
+  const connectBtn = document.getElementById('connect-btn');
   const ip = document.getElementById('device-ip').value.trim();
   if (!ip) {
     alert('Enter device IP');
     return;
   }
+  
+  connectBtn.classList.add('loading');
+  connectBtn.disabled = true;
   
   localStorage.setItem(IP_KEY, ip);
   STATE.reconnectAttempts = 0;
@@ -49,6 +71,10 @@ function connect() {
   ws = new WebSocket(`ws://${ip}:81/ws`);
   
   ws.onopen = () => {
+    const connectBtn = document.getElementById('connect-btn');
+    connectBtn.classList.remove('loading');
+    connectBtn.disabled = false;
+    
     STATE.connected = true;
     STATE.reconnectAttempts = 0;
     updateStatus(true, 'Connected');

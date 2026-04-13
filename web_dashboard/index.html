@@ -6,7 +6,7 @@
   <title>IoT Monitor</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#007cba">
+  <meta name="theme-color" content="#1c1c1e">
 </head>
 <body>
   <div id="app">
@@ -15,11 +15,11 @@
       <div id="status" class="status disconnected">Disconnected</div>
     </header>
     <div id="config" class="config-panel">
-      <input id="device-ip" type="text" placeholder="192.168.1.100" value="">
-      <button id="connect-btn">Connect</button>
-      <button id="clear-ip">Clear IP</button>
+<input id="device-ip" type="text" placeholder="192.168.1.100" value="" aria-label="Device IP address">
+<button id="connect-btn" aria-label="Connect to IoT device">Connect</button>
+<button id="clear-ip" aria-label="Clear saved IP address">Clear IP</button>
     </div>
-<div id="sidebar">
+<aside id="sidebar" class="sidebar" aria-label="Device management sidebar">
       <select id="device-select">
         <option>Add Device...</option>
       </select>

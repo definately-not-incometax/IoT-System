@@ -107,8 +107,21 @@ void wifi_task(void *pvParameters) {
                         ESP_LOGI(TAG, "Trying STA with saved creds");
                     }
                 } else {
-                    ESP_LOGI(TAG, "No creds, starting config portal");
-                    current_state = WIFI_STATE_AP_PORTAL;
+                    ESP_LOGI(TAG, "No saved creds, using hardcoded WiFi");
+                    const char hardcoded_ssid[33] = "Ruti Torkarii";
+                    const char hardcoded_pass[65] = "8274808564";
+                    storage_save_wifi(hardcoded_ssid, hardcoded_pass);
+                    wifi_config_t wifi_config = { .sta = { .ssid = {0}, .password = {0} } };
+                    strncpy((char*)wifi_config.sta.ssid, hardcoded_ssid, 32);
+                    strncpy((char*)wifi_config.sta.password, hardcoded_pass, 64);
+                    wifi_config.sta.ssid[32] = 0;
+                    wifi_config.sta.password[64] = 0;
+                    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+                    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+                    ESP_ERROR_CHECK(esp_wifi_start());
+                    current_state = WIFI_STATE_STA_TRYING;
+                    connect_attempts = 0;
+                    ESP_LOGI(TAG, "Configured STA with hardcoded WiFi: %s", hardcoded_ssid);
                 }
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 break;
